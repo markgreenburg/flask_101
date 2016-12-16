@@ -93,10 +93,11 @@ def edit_person():
     cur.execute(
     """
     SELECT
-    first_name fname,
-    last_name lname,
-    profile_img pimg,
-    github_link github
+    first_name,
+    last_name,
+    profile_img,
+    github_link,
+    id
     FROM user_names
     WHERE
     id = %d;
@@ -115,18 +116,44 @@ def edit_person():
     """
     % user_id)
     user_phone_info = cur.fetchall()
+    print user_names_info[4]
     # New contact info comes back in
     return render_template("edit_person.html", user_info=user_names_info, user_contact_info= user_phone_info)
 
-
-
-
-@phonebook.route("/update_person")
+@phonebook.route("/update_person", methods=["POST"])
 def update_person():
     """
     Replaces existing user data with whatever was entered into the
     edit_person form
     """
+    # Get updated values from params
+    user_id = request.form.get("user_id")
+    print user_id
+    new_user_fname = request.form.get("first_name")
+    print new_user_fname
+    new_user_lname = request.form.get("last_name")
+    print new_user_lname
+    new_user_github = request.form.get("github_link")
+    new_user_profile_img = request.form.get("profile_img")
+    new_user_home_num = request.form.get("user_number_home")
+    new_user_work_num = request.form.get("user_number_work")
+    new_user_home_mobile = request.form.get("user_number_mobile")
+    # Update contact details
+    cur.execute(
+    """
+    UPDATE user_names
+    SET first_name='%s', last_name='%s', profile_img='%s', github_link='%s'
+    WHERE
+        id=%s
+    """
+    % (new_user_fname, new_user_lname, new_user_profile_img, new_user_github, user_id)
+    )
+    conx.commit()
+    return redirect("/")
+
+
+    # Update phone details
+
 
 @phonebook.route("/delete_person")
 def delete_person():
