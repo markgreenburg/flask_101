@@ -151,21 +151,45 @@ def update_person():
     conx.commit()
     return redirect("/")
 
+@phonebook.route("/confirm_delete", methods=["GET"])
+def confirm_delete():
+    user_id_to_confirm = request.args.get("id")
+    return render_template("/confirm_delete.html", id=user_id_to_confirm)
 
-    # Update phone details
-
-
-@phonebook.route("/delete_person")
+@phonebook.route("/delete_person", methods=["POST"])
 def delete_person():
     """
-    Deletes a person from the phonebook index
+    Soft deletes a person from the phonebook index
     """
+    id_to_delete = request.form.get("id")
+    print id_to_delete
+    # Delete entries from user_names table
+    delete_numbers =\
+    """
+    DELETE
+    FROM user_numbers
+    WHERE
+    user_id = %s
+    """\
+    % id_to_delete
+    cur.execute(delete_numbers)
+    conx.commit()
 
-@phonebook.route("/destroy_person")
-def destroy_person():
+    delete_names =\
     """
-    Destroys the deleted entry from the database.
-    """
+    DELETE
+    FROM user_names
+    WHERE
+        id = %s
+    """\
+    % id_to_delete
+
+    # Delete entries from user_numbers table
+
+    # Execute statements & commit the update
+    cur.execute(delete_names)
+    conx.commit()
+    return redirect('/')
 
 if __name__ == "__main__":
     phonebook.run()

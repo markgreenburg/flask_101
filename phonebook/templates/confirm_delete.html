@@ -1,0 +1,6 @@
+{% block body %}
+<form action="/delete_person" method="POST">
+  <input type="hidden" name="id" value="{{id}}" />
+  <button type="submit">Confirm Delete</button>
+</form>
+{% endblock %}
