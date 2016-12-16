@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<form action="/create_person" method="POST">
+  First Name: <input type="text" name="first_name" value="{{user_info[0]}}" /><br />
+  Last Name: <input type="text" name="last_name" value="{{user_info[1]}}"/><br />
+  GitHub Link: <input type="text" name="github_link" value="{{user_info[3]}}"/><br />
+  Upload New Image: <input type="file" name="profile_img" accept="image/*" /><br />
+  {% for row in user_contact_info: %}
+  {{user_contact_info[row][1]}} Phone: <input type="text" name="user_number_1" value="{{user_contact_info[row][0]}}" /><br />
+  {% endfor %}
+  <p>
+    <button type="submit">Add Contact</button>
+  </p>
+</form>
+  {% endblock %}

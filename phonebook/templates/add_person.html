@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<form action="/create_person" method="POST">
+  First Name: <input type="text" name="first_name" /><br />
+  Last Name: <input type="text" name="last_name" /><br />
+  GitHub Link: <input type="text" name="github_link" /><br />
+  Profile Image: <input type="file" name="profile_img" accept="image/*" /><br />
+  Home Phone: <input type="text" name="user_number_1" /><br />
+  Work Phone: <input type="text" name="user_number_2" /><br />
+  Mobile Phone: <input type="text" name="user_number_3"  /><br />
+  <p>
+    <button type="submit">Add Contact</button>
+  </p>
+  </form>
+{% endblock %}

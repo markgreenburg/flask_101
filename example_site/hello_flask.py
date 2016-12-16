@@ -30,7 +30,7 @@ def home():
     return render_template("students.html", student_list=CUR.fetchall(), \
     title="Student List")
 
-@APP.route("/new_student")
+@APP.route("/new_student", methods=["GET"])
 def new_student():
     """
     Displays form to add a new user
@@ -40,12 +40,12 @@ def new_student():
 @APP.route("/submit_new_student", methods=["POST"])
 def submit_new_student():
     """
-    Posts new student and
+    Posts new student
     """
     name = request.form.get('name')
     website = request.form.get('website')
     github_username = request.form.get('github_username')
-    query = ("inseert into student (name) values (\"%s\")" % name)
+    query = ("insert into student (name) values (\"%s\")" % name)
     CUR.execute(query)
     CONN.commit()
     return render_template("submit_new_student.html", name=name,\

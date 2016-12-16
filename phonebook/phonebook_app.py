@@ -27,24 +27,99 @@ def home():
     cur.execute(phonebook_entries)
     return render_template("index.html", entries=cur.fetchall(), title="All Entries")
 
-@phonebook.route("/add_person")
+@phonebook.route("/add_person", methods=["GET"])
 def add_person():
     """
     Form to allow adding a new person to the phonebook
     """
+    return render_template("add_person.html")
 
-@phonebook.route("/create_person")
+@phonebook.route("/create_person", methods=["POST"])
 def create_person():
     """
     Creates the person entered into the add_person form
     """
-# do we really need a route for this? Probably not.
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    github_link = request.form.get('github_link')
+    # profile_img = request.form.get('profile_img')
+    phone_1 = request.form.get('user_number_1')
+    phone_1_type = 'Home'
+    phone_2 = request.form.get('user_number_2')
+    phone_2_type = 'Work'
+    phone_3 = request.form.get('user_number_3')
+    phone_3_type = 'Mobile'
+    create_user = ("insert into user_names (first_name, last_name, github_link) values ('%s', '%s', '%s')" % (first_name, last_name, github_link))
+    cur.execute(create_user)
+    conx.commit()
+    created_user_id = cur.lastrowid
+    # Put this in a loop
+    add_home_number = ("insert into user_numbers (user_id, user_number, type) values (\"%d\", \"%s\", \"%s\");" % (created_user_id, phone_1, phone_1_type))
+    cur.execute(add_home_number)
+    add_work_number = ("insert into user_numbers (user_id, user_number, type) values (\"%d\", \"%s\", \"%s\");" % (created_user_id, phone_2, phone_2_type))
+    cur.execute(add_work_number)
+    add_mobile_number = ("insert into user_numbers (user_id, user_number, type) values (\"%d\", \"%s\", \"%s\");" % (created_user_id, phone_3, phone_3_type))
+    cur.execute(add_mobile_number)
+    # End loop
+    conx.commit()
+    return redirect("/")
 
-@phonebook.route("/edit_person")
+@phonebook.route("/details", methods=["GET"])
+#need to pass in the id
+def details():
+    user_id = int(request.args.get('id'))
+    cur.execute(
+        """
+        SELECT
+        id,
+        first_name fname,
+        last_name lname,
+        profile_img pimg,
+        github_link github
+        FROM user_names
+        WHERE
+        id = %d;
+        """
+        % user_id
+    )
+    return render_template("details.html", contact_details=cur.fetchone())
+
+@phonebook.route("/edit_person", methods=["GET"])
 def edit_person():
     """
     Form to allow changing of existing entry data
     """
+    user_id = int(request.args.get('id'))
+    cur.execute(
+    """
+    SELECT
+    first_name fname,
+    last_name lname,
+    profile_img pimg,
+    github_link github
+    FROM user_names
+    WHERE
+    id = %d;
+    """
+    % user_id
+    )
+    user_names_info = cur.fetchone()
+    cur.execute(
+    """
+    SELECT
+    user_number,
+    type
+    FROM user_numbers
+    WHERE
+    id = %d;
+    """
+    % user_id)
+    user_phone_info = cur.fetchall()
+    # New contact info comes back in
+    return render_template("edit_person.html", user_info=user_names_info, user_contact_info= user_phone_info)
+
+
+
 
 @phonebook.route("/update_person")
 def update_person():
