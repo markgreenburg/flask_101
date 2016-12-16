@@ -1,0 +1,17 @@
+"""
+Basic config file for our phonebook app
+"""
+from flask import Flask
+import mysql.connector
+
+phonebook = Flask("Phonebook")
+phonebook.debug = True
+
+conn = mysql.connector.connect(
+user="root",
+password="myfirstsql",
+host="127.0.0.1",
+database="simple_cms_development"
+)
+
+cur = conn.cursor()

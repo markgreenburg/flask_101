@@ -1,11 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>{{title}}</title>
-  </head>
-  <body>
     <h1>{{title}} - {{q}}</h1>
     <ul>
       {% for id, name in student_list %}
@@ -15,6 +9,5 @@
     <p>
       This paragraph is in the students template.
     </p>
-  </body>
-</html>
+
 {% endblock %}

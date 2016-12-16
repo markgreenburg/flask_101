@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>{{title}}</h1>
+<div class="index_table">
+  <table>
+    <thead>
+      <th>
+        First Name
+      </th>
+      <th>
+        Last Name
+      </th>
+      <th>
+        GitHub
+      </th>
+      <th>
+        Contact Details
+      </th>
+      <th>
+        Delete Contact
+      </th>
+    </thead>
+    <tbody>
+      {% for id, profile_img, first_name, last_name, github_link in entries: %}
+      <tr>
+        <td>
+          {{first_name}}
+        </td>
+        <td>
+          {{last_name}}
+        </td>
+        <td>
+          <a href="{{github_link}}"><img src="{{profile_img}}" alt="{{first_name}}" width="50px" height="50px"/></a>
+        </td>
+        <td>
+          <a href="/details?id={{id}}">Contact Details</a>
+        </td>
+        <td>
+          <a href="#">Delete Contact</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -27,9 +27,8 @@ def home():
     """
     query = ("SELECT id, name FROM pages")
     CUR.execute(query)
-    q = request.args.get('q')
     return render_template("students.html", student_list=CUR.fetchall(), \
-    title="Student List", q=q)
+    title="Student List")
 
 @APP.route("/new_student")
 def new_student():
