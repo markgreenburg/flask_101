@@ -6,35 +6,41 @@ from flask import Flask, render_template, request, redirect
 import mysql.connector
 import config
 
-phonebook = Flask("Phonebook")
-phonebook.debug = True
+PHONEBOOK = Flask("Phonebook")
+PHONEBOOK.debug = True
 
-conx = mysql.connector.connect(
+CONX = mysql.connector.connect(
     user=config.db_args['user'],
     password=config.db_args['password'],
     host=config.db_args['host'],
     database=config.db_args['database']
 )
 
-cur = conx.cursor()
+CUR = CONX.cursor()
 
-@phonebook.route("/")
+class person(object):
+    """
+    Defines attributes of a distinct ID in the phonebook
+    """
+    
+
+@PHONEBOOK.route("/")
 def home():
     """
     Phonebook homepage. Displays list of entries phonebook.
     """
     phonebook_entries = ("SELECT id, profile_img, first_name, last_name, github_link FROM user_names ORDER BY last_name ASC")
-    cur.execute(phonebook_entries)
-    return render_template("index.html", entries=cur.fetchall(), title="All Entries")
+    CUR.execute(phonebook_entries)
+    return render_template("index.html", entries=CUR.fetchall(), title="All Entries")
 
-@phonebook.route("/add_person", methods=["GET"])
+@PHONEBOOK.route("/add_person", methods=["GET"])
 def add_person():
     """
     Form to allow adding a new person to the phonebook
     """
     return render_template("add_person.html")
 
-@phonebook.route("/create_person", methods=["POST"])
+@PHONEBOOK.route("/create_person", methods=["POST"])
 def create_person():
     """
     Creates the person entered into the add_person form
@@ -50,25 +56,25 @@ def create_person():
     phone_3 = request.form.get('user_number_3')
     phone_3_type = 'Mobile'
     create_user = ("insert into user_names (first_name, last_name, github_link) values ('%s', '%s', '%s')" % (first_name, last_name, github_link))
-    cur.execute(create_user)
-    conx.commit()
-    created_user_id = cur.lastrowid
+    CUR.execute(create_user)
+    CONX.commit()
+    created_user_id = CUR.lastrowid
     # Put this in a loop
     add_home_number = ("insert into user_numbers (user_id, user_number, type) values (\"%d\", \"%s\", \"%s\");" % (created_user_id, phone_1, phone_1_type))
-    cur.execute(add_home_number)
+    CUR.execute(add_home_number)
     add_work_number = ("insert into user_numbers (user_id, user_number, type) values (\"%d\", \"%s\", \"%s\");" % (created_user_id, phone_2, phone_2_type))
-    cur.execute(add_work_number)
+    CUR.execute(add_work_number)
     add_mobile_number = ("insert into user_numbers (user_id, user_number, type) values (\"%d\", \"%s\", \"%s\");" % (created_user_id, phone_3, phone_3_type))
-    cur.execute(add_mobile_number)
+    CUR.execute(add_mobile_number)
     # End loop
-    conx.commit()
+    CONX.commit()
     return redirect("/")
 
-@phonebook.route("/details", methods=["GET"])
+@PHONEBOOK.route("/details", methods=["GET"])
 #need to pass in the id
 def details():
     user_id = int(request.args.get('id'))
-    cur.execute(
+    CUR.execute(
         """
         SELECT
         id,
@@ -82,15 +88,15 @@ def details():
         """
         % user_id
     )
-    return render_template("details.html", contact_details=cur.fetchone())
+    return render_template("details.html", contact_details=CUR.fetchone())
 
-@phonebook.route("/edit_person", methods=["GET"])
+@PHONEBOOK.route("/edit_person", methods=["GET"])
 def edit_person():
     """
     Form to allow changing of existing entry data
     """
     user_id = int(request.args.get('id'))
-    cur.execute(
+    CUR.execute(
     """
     SELECT
     first_name,
@@ -102,10 +108,10 @@ def edit_person():
     WHERE
     id = %d;
     """
-    % user_id
+        % user_id
     )
-    user_names_info = cur.fetchone()
-    cur.execute(
+    user_names_info = CUR.fetchone()
+    CUR.execute(
     """
     SELECT
     user_number,
@@ -115,12 +121,12 @@ def edit_person():
     id = %d;
     """
     % user_id)
-    user_phone_info = cur.fetchall()
+    user_phone_info = CUR.fetchall()
     print user_names_info[4]
     # New contact info comes back in
     return render_template("edit_person.html", user_info=user_names_info, user_contact_info= user_phone_info)
 
-@phonebook.route("/update_person", methods=["POST"])
+@PHONEBOOK.route("/update_person", methods=["POST"])
 def update_person():
     """
     Replaces existing user data with whatever was entered into the
@@ -139,7 +145,7 @@ def update_person():
     new_user_work_num = request.form.get("user_number_work")
     new_user_home_mobile = request.form.get("user_number_mobile")
     # Update contact details
-    cur.execute(
+    CUR.execute(
     """
     UPDATE user_names
     SET first_name='%s', last_name='%s', profile_img='%s', github_link='%s'
@@ -148,15 +154,15 @@ def update_person():
     """
     % (new_user_fname, new_user_lname, new_user_profile_img, new_user_github, user_id)
     )
-    conx.commit()
+    CONX.commit()
     return redirect("/")
 
-@phonebook.route("/confirm_delete", methods=["GET"])
+@PHONEBOOK.route("/confirm_delete", methods=["GET"])
 def confirm_delete():
     user_id_to_confirm = request.args.get("id")
     return render_template("/confirm_delete.html", id=user_id_to_confirm)
 
-@phonebook.route("/delete_person", methods=["POST"])
+@PHONEBOOK.route("/delete_person", methods=["POST"])
 def delete_person():
     """
     Soft deletes a person from the phonebook index
@@ -172,8 +178,8 @@ def delete_person():
     user_id = %s
     """\
     % id_to_delete
-    cur.execute(delete_numbers)
-    conx.commit()
+    CUR.execute(delete_numbers)
+    CONX.commit()
 
     delete_names =\
     """
@@ -187,12 +193,12 @@ def delete_person():
     # Delete entries from user_numbers table
 
     # Execute statements & commit the update
-    cur.execute(delete_names)
-    conx.commit()
+    CUR.execute(delete_names)
+    CONX.commit()
     return redirect('/')
 
 if __name__ == "__main__":
-    phonebook.run()
+    PHONEBOOK.run()
 
-cur.close()
-conx.close()
+CUR.close()
+CONX.close()
