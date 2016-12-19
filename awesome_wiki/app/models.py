@@ -3,6 +3,7 @@ CRUD models for our wiki app
 """
 import mysql.connector
 import config
+import time
 
 class Page(object):
     """
@@ -11,8 +12,8 @@ class Page(object):
     def __init__(self, page_id=0):
         if not isinstance(page_id, int):
             page_id = int(page_id)
-        query = ('SELECT id, name, content, last_modified, modified_by'
-                 'FROM page WHERE id=%d"' % page_id)
+        query = ("SELECT page_id, title, content, last_modified, modified_by"
+                 " FROM page WHERE page_id = %d" % page_id)
         # Query our db to see if this page ID exists
         result_set = Database.get_result(query, True)
         # If page exists, set Page attributes to what's in the db
@@ -22,6 +23,12 @@ class Page(object):
             self.content = result_set[2]
             self.last_modified = result_set[3]
             self.modified_by = result_set[4]
+        else:
+            self.page_id = 0
+            self.title = "Not Set"
+            self.content = "Not Set"
+            self.last_modified = "Not Set"
+            self.modified_by = "Not Set"
         return
 
     def insert(self):
@@ -29,11 +36,11 @@ class Page(object):
         Inserts new page into wiki. Should not be called directly - instead,
         use the Page.save() method.
         """
-        query = ("INSERT INTO page (title, content, last_modified, "
-                 "modified_by, VALUES (\"%s\", \"%s\", \"%s\", \"%s\")" % \
+        query = ("INSERT INTO page (title, content, last_modified,"
+                 " modified_by) VALUES (\"%s\", \"%s\", \"%s\", \"%s\")" % \
                  (Database.escape(self.title), \
                   Database.escape(self.content),\
-                  Database.escape(self.last_modified), \
+                  time.time(), \
                   Database.escape(self.modified_by)))
         return Database.do_query(query)
 
@@ -43,10 +50,10 @@ class Page(object):
         Page.save() method.
         """
         query = ("UPDATE page set title = '%s', content = '%s', last_modified"
-                 " = '%s', modified_by = '%s' WHERE id = %d" % \
+                 " = '%s', modified_by = '%s' WHERE page_id = %d" % \
                 (Database.escape(self.title),\
                  Database.escape(self.content),\
-                 Database.escape(self.last_modified),\
+                 time.time(),\
                  Database.escape(self.modified_by),\
                  self.page_id))
         return Database.do_query(query)
@@ -57,7 +64,9 @@ class Page(object):
         page already exists, will call update(), else will call insert().
         Returns the respective method calls.
         """
-        if self.page_id > 0:
+        print self.page_id
+        print type(self.page_id)
+        if self.page_id:
             return self.update()
         else:
             return self.insert()
@@ -67,7 +76,8 @@ class Page(object):
         Sets a page's status to 'deleted' so it won't show in the index. Page
         does not actually get destroyed.
         """
-        query = "UPDATE page SET deleted = 1 WHERE id = %d" %(self.page_id)
+        query = "UPDATE page SET deleted = 1 WHERE page_id = %d" \
+                % (self.page_id)
         return Database.do_query(query)
 
     @staticmethod
@@ -75,9 +85,14 @@ class Page(object):
         """
         Fetches all undeleted pages from the database. Returns all rows.
         """
-        query = ("SELECT id, title, content, last_modified, modified_by FROM"
-                 "page WHERE deleted = 0")
-        return Database.get_result(query)
+        query = ("SELECT page_id, title, content, last_modified, modified_by FROM"
+                 " page WHERE deleted = 0")
+        result_set = Database.get_result(query)
+        pages = []
+        for page in result_set:
+            page_id = int(page[0])
+            pages.append(Page(page_id))
+        return pages
 
 class Database(object):
     """

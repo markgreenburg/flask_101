@@ -2,7 +2,8 @@
 Module consists of basic CRUD routes for the wiki APP.
 """
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
+import time
 import models
 
 # Initialize new Flask App
@@ -41,11 +42,25 @@ def edit_page():
     """
 
 
-@APP.route("/<page_name>/save")
+@APP.route("/new_page")
+def new_page():
+    return render_template("new_page.html")
+
+@APP.route("/new_page_save", methods=["GET", "POST"])
 def save_page():
     """
     Saves the new form content
     """
+    page = models.Page()
+    page.title = request.form.get("title")
+    page.content = request.form.get("content")
+    page.modified_by = request.form.get("modified_by")
+    print page.title
+    print page.content
+    print page.page_id
+    page.save()
+    flash('Page %s created successfully' % page.title)
+    return redirect ("/")
 
 
 @APP.route("/<page_name>/delete")
@@ -53,3 +68,5 @@ def delete_page():
     """
     Soft deletes a specific page
     """
+if __name__ == "__main__":
+    APP.run()

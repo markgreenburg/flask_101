@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-% block body %}
+{% block body %}
 <h1>{{title}}</h1>
 <div class="index_table">
   <table>
@@ -21,22 +21,25 @@
       </th>
     </thead>
     <tbody>
-      {% for id, profile_img, first_name, last_name, github_link in entries: %}
+      {% for entry in page_list: %}
       <tr>
         <td>
-          {{first_name}}
+          {{entry.title}}
         </td>
         <td>
-          {{last_name}}
+          {{entry.content}}
         </td>
         <td>
-          <a href="{{github_link}}"><img src="{{profile_img}}" alt="{{first_name}}" width="50px" height="50px"/></a>
+          {{entry.last_modified}}
         </td>
         <td>
-          <a href="/details?id={{id}}">Contact Details</a>
+          {{entry.modified_by}}
         </td>
         <td>
-          <a href="/confirm_delete?id={{id}}">Delete Contact</a>
+          <a href="/{{id}}">View Page</a>
+        </td>
+        <td>
+          <a href="/{{id}}/delete}}">Delete Page</a>
         </td>
       </tr>
       {% endfor %}
