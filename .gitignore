@@ -2,3 +2,5 @@
 phonebook/config.py
 
 *.pyc
+
+instance/
