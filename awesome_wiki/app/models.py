@@ -9,12 +9,12 @@ class Page(object):
     Object map for pages in the database
     """
     def __init__(self, page_id=0):
-        if not type(page_id) == int:
+        if not isinstance(page_id, int):
             page_id = int(page_id)
         query = ('SELECT id, name, content, last_modified, modified_by'
                  'FROM page WHERE id=%d"' % page_id)
         # Query our db to see if this page ID exists
-        result_set = Database.getResult(query, True)
+        result_set = Database.get_result(query, True)
         # If page exists, set Page attributes to what's in the db
         if result_set:
             self.page_id = page_id
@@ -35,7 +35,7 @@ class Page(object):
                   Database.escape(self.content),\
                   Database.escape(self.last_modified), \
                   Database.escape(self.modified_by)))
-        return Database.doQuery(query)
+        return Database.do_query(query)
 
     def update(self):
         """
@@ -43,13 +43,13 @@ class Page(object):
         Page.save() method.
         """
         query = ("UPDATE page set title = '%s', content = '%s', last_modified"
-                " = '%s', modified_by = '%s' WHERE id = %d" % \
+                 " = '%s', modified_by = '%s' WHERE id = %d" % \
                 (Database.escape(self.title),\
                  Database.escape(self.content),\
                  Database.escape(self.last_modified),\
                  Database.escape(self.modified_by),\
                  self.page_id))
-        return Database.doQuery(query)
+        return Database.do_query(query)
 
     def save(self):
         """
@@ -68,16 +68,16 @@ class Page(object):
         does not actually get destroyed.
         """
         query = "UPDATE page SET deleted = 1 WHERE id = %d" %(self.page_id)
-        return Database.doQuery(query)
+        return Database.do_query(query)
 
     @staticmethod
-    def getPages():
+    def get_pages():
         """
         Fetches all undeleted pages from the database. Returns all rows.
         """
         query = ("SELECT id, title, content, last_modified, modified_by FROM"
                  "page WHERE deleted = 0")
-        return Database.getResult(query)
+        return Database.get_result(query)
 
 
 class Database(object):
@@ -87,7 +87,10 @@ class Database(object):
     connections in mysql
     """
     @staticmethod
-    def getConnection():
+    def get_connection():
+        """
+        Sets up the mysql connection. Uses settings from the config file.
+        """
         return mysql.connector.connect(
             user=config.user_name,
             password=config.password,
@@ -100,20 +103,20 @@ class Database(object):
         """
         Escapes apostrophes in SQL
         """
-        return value.replace("'","''")
+        return value.replace("'", "''")
 
     @staticmethod
-    def getResult(query,getOne=False):
+    def get_result(query, get_one=False):
         """
         Opens a connection to the db, executes a query, fetches results, and
         then closes the connection.
-        Args: query to execute, getOne (false by default, default is fetchall)
+        Args: query to execute, get_one (false by default, default is fetchall)
         Returns: the fetchOne or fetchAll of the query
         """
-        conx = Database.getConnection()
+        conx = Database.get_connection()
         cur = conx.cursor()
         conx.execute(query)
-        if getOne:
+        if get_one:
             result_set = cur.fetchOne()
         else:
             result_set = cur.fetchAll()
@@ -122,18 +125,18 @@ class Database(object):
         return result_set
 
     @staticmethod
-    def doQuery(query):
+    def do_query(query):
         """
         Takes care of opening and then closing our database connections. Also
         executes our SQL and auto-commits queries. Takes SQL query as arg and
         returns the lastrowid in case we need to insert it as foreign key
         elsewhere.
         """
-        conx = Database.getConnection()
+        conx = Database.get_connection()
         cur = conx.cursor()
         cur.execute(query)
         conx.commit()
-        lastId = cur.lastrowid
+        last_id = cur.lastrowid
         cur.close()
         conx.close()
-        return lastId
+        return last_id
