@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+% block body %}
+<h1>{{title}}</h1>
+<div class="index_table">
+  <table>
+    <thead>
+      <th>
+        Page Name
+      </th>
+      <th>
+        Last Modified
+      </th>
+      <th>
+        Modified By
+      </th>
+      <th>
+        View Page
+      </th>
+      <th>
+        Delete Page
+      </th>
+    </thead>
+    <tbody>
+      {% for id, profile_img, first_name, last_name, github_link in entries: %}
+      <tr>
+        <td>
+          {{first_name}}
+        </td>
+        <td>
+          {{last_name}}
+        </td>
+        <td>
+          <a href="{{github_link}}"><img src="{{profile_img}}" alt="{{first_name}}" width="50px" height="50px"/></a>
+        </td>
+        <td>
+          <a href="/details?id={{id}}">Contact Details</a>
+        </td>
+        <td>
+          <a href="/confirm_delete?id={{id}}">Delete Contact</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -79,7 +79,6 @@ class Page(object):
                  "page WHERE deleted = 0")
         return Database.get_result(query)
 
-
 class Database(object):
     """
     Collection of static methods that setup our DB connection and create
@@ -115,11 +114,11 @@ class Database(object):
         """
         conx = Database.get_connection()
         cur = conx.cursor()
-        conx.execute(query)
+        cur.execute(query)
         if get_one:
-            result_set = cur.fetchOne()
+            result_set = cur.fetchone()
         else:
-            result_set = cur.fetchAll()
+            result_set = cur.fetchall()
         cur.close()
         conx.close()
         return result_set

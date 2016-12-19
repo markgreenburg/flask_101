@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>
+      Mark's Wiki
+    </title>
+    <link rel="stylesheet" type="text/css" href="static/style.css" />
+  </head>
+  <body>
+    <div>
+      <a href="/add_page">Add New Page</a>
+    </div>
+    {% block body %}
+    <div style="text-align: center">
+      Uh oh! Looks like something went wrong.
+      <ul>
+        <li>
+          <a href="#">Report a problem</a>
+        </li>
+        <li>
+          <a href="/index.html">Go back to the homepage</a>
+        </li>
+      </ul>
+    </div>
+    {% endblock %}
+  </body>
+</html>
