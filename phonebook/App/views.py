@@ -18,12 +18,6 @@ CONX = mysql.connector.connect(
 
 CUR = CONX.cursor()
 
-class person(object):
-    """
-    Defines attributes of a distinct ID in the phonebook
-    """
-    
-
 @PHONEBOOK.route("/")
 def home():
     """
