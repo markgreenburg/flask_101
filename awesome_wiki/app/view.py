@@ -3,7 +3,6 @@ Module consists of basic CRUD routes for the wiki APP.
 """
 
 from flask import Flask, render_template, request, redirect, flash
-import time
 import models
 
 # Initialize new Flask App
@@ -11,6 +10,7 @@ APP = Flask("awesome_wiki")
 # Load root-level config.py file -> not in version control. Contains DB
 # and debug settings
 APP.config.from_object('config')
+APP.secret_key = '123456'
 
 @APP.route("/")
 def homepage():
@@ -21,21 +21,20 @@ def homepage():
     return render_template("homepage.html", page_list=page_list, title="Mark's\
                            Wiki")
 
-
-@APP.route("/<page_id>")
+@APP.route("/view/<page_id>")
 def show_page(page_id):
     """
     Shows the contents of a specific page, or shows an error page.
     """
     page = models.Page(page_id)
     if page.page_id:
-        return render_template("page_details.html", title=page.title, content=\
-        page.content, last_modified=page.last_modified, modified_by=page.\
-        modified_by)
+        return render_template("view.html", page_id = page.page_id, \
+        title=page.title, content=page.content, \
+        last_modified=page.last_modified, modified_by=page.modified_by)
     else:
         return render_template("not_a_page.html")
 
-@APP.route("/<page_name>/edit")
+@APP.route("/edit/<page_id>")
 def edit_page():
     """
     Shows form to edit the content of the current page
@@ -59,7 +58,7 @@ def save_page():
     print page.content
     print page.page_id
     page.save()
-    flash('Page %s created successfully' % page.title)
+    flash("Page '%s' created successfully" % page.title)
     return redirect ("/")
 
 
@@ -68,5 +67,7 @@ def delete_page():
     """
     Soft deletes a specific page
     """
+    
+
 if __name__ == "__main__":
     APP.run()

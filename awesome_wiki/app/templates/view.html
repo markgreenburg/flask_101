@@ -1,0 +1,20 @@
+{% block body %}
+<div>
+  <h3>{{title}}</h3>
+</div>
+<div>
+  {{content}}
+</div>
+<div>
+  Last Modified: {{last_modified}}
+</div>
+<div>
+  Modified By: {{modified_by}}
+</div>
+<div>
+  <a href="/edit/{{page_id}}">Edit Page</a>
+</div>
+<div>
+  <a href="/delete/{{page_id}}">Delete Page</a>
+</div>
+{% endblock %}

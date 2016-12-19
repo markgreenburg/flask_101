@@ -8,6 +8,9 @@
         Page Name
       </th>
       <th>
+        Content
+      </th>
+      <th>
         Last Modified
       </th>
       <th>
@@ -36,10 +39,10 @@
           {{entry.modified_by}}
         </td>
         <td>
-          <a href="/{{id}}">View Page</a>
+          <a href="/view/{{entry.page_id}}">View Page</a>
         </td>
         <td>
-          <a href="/{{id}}/delete}}">Delete Page</a>
+          <a href="/delete/{{entry.page_id}}">Delete Page</a>
         </td>
       </tr>
       {% endfor %}

@@ -11,6 +11,17 @@
     <div>
       <a href="/new_page">Add New Page</a>
     </div>
+    <div>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
     {% block body %}
     <div style="text-align: center">
       Uh oh! Looks like something went wrong.
