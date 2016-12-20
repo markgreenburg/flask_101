@@ -4,6 +4,7 @@ Module consists of basic CRUD routes for the wiki APP.
 
 from flask import Flask, render_template, request, redirect, flash
 import models
+from wiki_linkify import wiki_linkify
 
 # Initialize new Flask App
 APP = Flask("awesome_wiki")
@@ -18,11 +19,14 @@ def homepage():
     Directory of all pages in the wiki
     """
     page_list = models.Page.get_pages()
-    return render_template("homepage.html", page_list=page_list, title="Mark's\
-                           Wiki")
+    return render_template("homepage.html", page_list=page_list, \
+    title="Mark's Wiki")
 
 @APP.route("/new_page")
 def new_page():
+    """
+    Displays form to allow entry of data for new page creation.
+    """
     return render_template("new_page.html", page=models.Page())
 
 @APP.route("/new_page_save", methods=["POST"])
@@ -36,7 +40,7 @@ def insert_page():
     page.modified_by = request.form.get("modified_by")
     page.save()
     flash("Page '%s' created successfully" % page.title)
-    return redirect ("/")
+    return redirect("/")
 
 @APP.route("/view/<page_id>")
 def show_page(page_id):
@@ -44,8 +48,9 @@ def show_page(page_id):
     Shows the contents of a specific page
     """
     page = models.Page(page_id)
-    return render_template("view.html", page_id = page.page_id, \
-                           title=page.title, content=page.content,\
+    return render_template("view.html", page_id=page.page_id, \
+                           title=page.title, \
+                           content=wiki_linkify(page.content),\
                            last_modified=page.last_modified,\
                            modified_by=page.modified_by)
 
@@ -56,7 +61,7 @@ def edit_page(page_id):
     displayed in the form by default.
     """
     page = models.Page(page_id)
-    return render_template("edit.html", page_id = page.page_id, \
+    return render_template("edit.html", page_id=page.page_id, \
                            title=page.title, content=page.content,\
                            modified_by=page.modified_by)
 
@@ -80,7 +85,8 @@ def delete_page(page_id):
     """
     page = models.Page(page_id)
     page.set_delete()
-    flash("Page '%s' deleted successfully. <a href='/undelete/%d'>Undo</a>" % (page.title, page.page_id))
+    flash("Page '%s' deleted successfully. <a href='/undelete/%d'>Undo</a>" \
+          % (page.title, page.page_id))
     return redirect("/")
 
 @APP.route("/undelete/<page_id>")

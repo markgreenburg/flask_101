@@ -1,9 +1,9 @@
 """
 CRUD models for our wiki app
 """
+import time
 import mysql.connector
 import config
-import time
 
 class Page(object):
     """
