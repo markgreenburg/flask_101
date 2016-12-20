@@ -1,7 +1,7 @@
 """
 CRUD models for our wiki app
 """
-import time
+from time import strftime
 import mysql.connector
 import config
 
@@ -40,7 +40,7 @@ class Page(object):
                  " modified_by) VALUES (\"%s\", \"%s\", \"%s\", \"%s\")" % \
                  (Database.escape(self.title), \
                   Database.escape(self.content),\
-                  time.time(), \
+                  strftime("%Y-%m-%d %H:%M:%S"), \
                   Database.escape(self.modified_by)))
         return Database.do_query(query)
 
@@ -53,7 +53,7 @@ class Page(object):
                  " = '%s', modified_by = '%s' WHERE page_id = %d" % \
                 (Database.escape(self.title),\
                  Database.escape(self.content),\
-                 time.time(),\
+                 strftime("%Y-%m-%d %H:%M:%S"),\
                  Database.escape(self.modified_by),\
                  self.page_id))
         return Database.do_query(query)

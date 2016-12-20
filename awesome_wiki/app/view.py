@@ -2,9 +2,10 @@
 Module consists of basic CRUD routes for the wiki APP.
 """
 
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, Markup, render_template, request, redirect, flash
 import models
 from wiki_linkify import wiki_linkify
+import markdown
 
 # Initialize new Flask App
 APP = Flask("awesome_wiki")
@@ -48,9 +49,11 @@ def show_page(page_id):
     Shows the contents of a specific page
     """
     page = models.Page(page_id)
+    page.content = wiki_linkify(page.content)
+    page.content = Markup(markdown.markdown(page.content))
     return render_template("view.html", page_id=page.page_id, \
                            title=page.title, \
-                           content=wiki_linkify(page.content),\
+                           content=page.content,\
                            last_modified=page.last_modified,\
                            modified_by=page.modified_by)
 
@@ -96,7 +99,7 @@ def undelete_page(page_id):
     """
     page = models.Page(page_id)
     page.set_delete(0)
-    flash("Page %s restored successfully." % page.title)
+    flash("Page '%s' restored successfully." % page.title)
     return redirect("/")
 
 if __name__ == "__main__":

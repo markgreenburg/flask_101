@@ -3,12 +3,12 @@
 {% block body %}
 <form action="/edit_page_save/{{page_id}}" method="POST">
   <input type="text" name="title", size="70", value="{{title}}" /><br />
-  <textarea rows="25", cols="72">
+  <textarea name="content", rows="25", cols="72">
     {{content}}
   </textarea><br />
-<input type="text" name="modified_by", size="70", value="Modified By: {{modified_by}}" /><br />
+  <input type="text" name="modified_by", size="70", placeholder="Modified By: {{modified_by}}" /><br />
   <p>
     <button type="submit">Edit Page</button>
   </p>
-  </form>
+</form>
 {% endblock %}
