@@ -64,20 +64,19 @@ class Page(object):
         page already exists, will call update(), else will call insert().
         Returns the respective method calls.
         """
-        print self.page_id
-        print type(self.page_id)
         if self.page_id:
             return self.update()
         else:
             return self.insert()
 
-    def delete(self):
+    def set_delete(self, deleted=1):
         """
-        Sets a page's status to 'deleted' so it won't show in the index. Page
-        does not actually get destroyed.
+        Sets a page's 'deleted' attribute to 1 by default (so it won't show in
+        index) or 0 if passed in as an arg. Setting to 0 restores the page in
+        the index.
         """
-        query = "UPDATE page SET deleted = 1 WHERE page_id = %d" \
-                % (self.page_id)
+        query = "UPDATE page SET deleted = %d WHERE page_id = %d" \
+                % (deleted, self.page_id)
         return Database.do_query(query)
 
     @staticmethod

@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<form action="/edit_page_save/{{page_id}}" method="POST">
+  Title: <input type="text" name="title", size="70", value={{title}} /><br />
+  Content: <input type="text" name="content" min="250", size="100", value={{content}} /><br />
+  Author: <input type="text" name="modified_by", size="70", value={{modified_by}} /><br />
+  <p>
+    <button type="submit">Edit Page</button>
+  </p>
+  </form>
+{% endblock %}
