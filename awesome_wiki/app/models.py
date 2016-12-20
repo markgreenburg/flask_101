@@ -12,8 +12,8 @@ class Page(object):
     def __init__(self, page_id=0):
         if not isinstance(page_id, int):
             page_id = int(page_id)
-        query = ("SELECT page_id, title, content, last_modified, modified_by"
-                 " FROM page WHERE page_id = %d" % page_id)
+        query = ("SELECT page_id, title, content, last_modified, modified_by,"
+                 " deleted FROM page WHERE page_id = %d" % page_id)
         # Query our db to see if this page ID exists
         result_set = Database.get_result(query, True)
         # If page exists, set Page attributes to what's in the db
@@ -23,12 +23,14 @@ class Page(object):
             self.content = result_set[2]
             self.last_modified = result_set[3]
             self.modified_by = result_set[4]
+            self.deleted = result_set[5]
         else:
             self.page_id = 0
             self.title = "Not Set"
             self.content = "Not Set"
             self.last_modified = "Not Set"
             self.modified_by = "Not Set"
+            self.deleted = 0
         return
 
     def insert(self):
@@ -42,7 +44,8 @@ class Page(object):
                   Database.escape(self.content),\
                   strftime("%Y-%m-%d %H:%M:%S"), \
                   Database.escape(self.modified_by)))
-        return Database.do_query(query)
+        self.page_id = Database.do_query(query)
+        return self.page_id
 
     def update(self):
         """
@@ -58,16 +61,31 @@ class Page(object):
                  self.page_id))
         return Database.do_query(query)
 
+    def create_revision(self):
+        """
+        Inserts a new entry into the revisions table. Should only be called
+        indirectly through the save() method.
+        """
+        query = ("INSERT INTO revisions (page_id, title, content,"
+                 " last_modified, modified_by, deleted) VALUES ("
+                 "\"%d\", \"%s\", \"%s\", \"%s\", \"%s\", \"%d\")" % \
+                 (self.page_id, self.title, self.content, \
+                  self.last_modified, self.modified_by, \
+                  self.deleted))
+        return Database.do_query(query)
+
     def save(self):
         """
         Saves action to database by calling insert() or update() methods. If
         page already exists, will call update(), else will call insert().
-        Returns the respective method calls.
+        After insert or update, adds the last change to the revisions table.
         """
         if self.page_id:
-            return self.update()
+            self.update()
         else:
-            return self.insert()
+            self.insert()
+        self.create_revision()
+        return self.page_id
 
     def set_delete(self, deleted=1):
         """
