@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>{{title}}</h1>
+<div class="index_table">
+  <table>
+    <thead>
+      <th>
+        Page Name
+      </th>
+      <th>
+        Content
+      </th>
+      <th>
+        Last Modified
+      </th>
+      <th>
+        Modified By
+      </th>
+      <th>
+        View Page
+      </th>
+      <th>
+        Delete Page
+      </th>
+    </thead>
+    <tbody>
+      {% for entry in page_list: %}
+      <tr>
+        <td>
+          {{entry.title}}
+        </td>
+        <td>
+          {{entry.content}}
+        </td>
+        <td>
+          {{entry.last_modified}}
+        </td>
+        <td>
+          {{entry.modified_by}}
+        </td>
+        <td>
+          <a href="/view/{{entry.page_id}}">View Page</a>
+        </td>
+        <td>
+          <a href="/delete/{{entry.page_id}}">Delete Page</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

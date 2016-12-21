@@ -102,5 +102,15 @@ def undelete_page(page_id):
     flash("Page '%s' restored successfully." % page.title)
     return redirect("/")
 
+@APP.route("/history/<page_id>")
+def rollback_page(page_id):
+    """
+    Shows historical versions of a page given the page id.
+    """
+    current_version = models.Page(page_id)
+    page_list = current_version.get_revisions()
+    return render_template("homepage.html", page_list=page_list, \
+    title="Revision History: %s" % current_version.title)
+
 if __name__ == "__main__":
-    APP.run()
+    APP.run() 
