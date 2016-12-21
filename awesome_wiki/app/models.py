@@ -123,7 +123,6 @@ class Page(object):
             pages.append(Page(page_id))
         return pages
 
-
 class Revision(object):
     """
     Subclass of Page. Over-rides some of the in-built functions to pull from

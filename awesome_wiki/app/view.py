@@ -128,6 +128,5 @@ def rollback(revision_id):
     flash("Page %s rolled back successfully." % overwrite_with.title)
     return redirect("/")
 
-
 if __name__ == "__main__":
     APP.run()
