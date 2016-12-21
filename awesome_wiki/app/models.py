@@ -71,7 +71,6 @@ class Page(object):
             self.update()
         else:
             self.insert()
-        print "what's the id of the updated page? %d " % self.page_id
         revision = Revision()
         revision.page_id = self.page_id
         revision.title = self.title
@@ -99,7 +98,8 @@ class Page(object):
         from the revisions table. Returns all rows.
         """
         query = ("SELECT id, page_id, title, content, last_modified,"
-                 "modified_by FROM revisions WHERE page_id = %d" % self.page_id)
+                 "modified_by FROM revisions WHERE page_id = %d ORDER BY"
+                 " last_modified DESC" % self.page_id)
         result_set = Database.get_result(query)
         revisions = []
         for revision in result_set:
@@ -115,7 +115,7 @@ class Page(object):
         from the revisions table. Returns all rows.
         """
         query = ("SELECT page_id, title, content, last_modified, modified_by"
-        " FROM page WHERE deleted = 0")
+                 " FROM page WHERE deleted = 0 ORDER BY title ASC")
         result_set = Database.get_result(query)
         pages = []
         for page in result_set:
@@ -232,7 +232,6 @@ class Database(object):
         cur.execute(query)
         conx.commit()
         last_id = cur.lastrowid
-        print "this is the db last_id in the do_query method: %d" % last_id
         cur.close()
         conx.close()
         return last_id

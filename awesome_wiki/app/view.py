@@ -43,7 +43,7 @@ def insert_page():
     flash("Page '%s' created successfully" % page.title)
     return redirect("/")
 
-@APP.route("/view/<page_id>")
+@APP.route("/view/<int:page_id>")
 def show_page(page_id):
     """
     Shows the contents of a specific page
@@ -57,7 +57,7 @@ def show_page(page_id):
                            last_modified=page.last_modified,\
                            modified_by=page.modified_by)
 
-@APP.route("/edit/<page_id>", methods=["GET"])
+@APP.route("/edit/<int:page_id>", methods=["GET"])
 def edit_page(page_id):
     """
     Shows form to edit the content of the current page. Current values are
@@ -68,7 +68,7 @@ def edit_page(page_id):
                            title=page.title, content=page.content,\
                            modified_by=page.modified_by)
 
-@APP.route("/edit_page_save/<page_id>", methods=["POST"])
+@APP.route("/edit_page_save/<int:page_id>", methods=["POST"])
 def update_page(page_id):
     """
     Updates data for a given page id.
@@ -81,7 +81,7 @@ def update_page(page_id):
     flash("Page '%s' updated successfully" % page.title)
     return redirect("/")
 
-@APP.route("/delete/<page_id>")
+@APP.route("/delete/<int:page_id>")
 def delete_page(page_id):
     """
     Soft deletes a specific page. Flashes link to user to undo action
@@ -92,7 +92,7 @@ def delete_page(page_id):
           % (page.title, page.page_id))
     return redirect("/")
 
-@APP.route("/undelete/<page_id>")
+@APP.route("/undelete/<int:page_id>")
 def undelete_page(page_id):
     """
     Sets 'deleted' attribute back to 0, effectively restoring the page.
@@ -102,15 +102,32 @@ def undelete_page(page_id):
     flash("Page '%s' restored successfully." % page.title)
     return redirect("/")
 
-@APP.route("/history/<page_id>")
-def rollback_page(page_id):
+@APP.route("/history/<int:page_id>")
+def show_history(page_id):
     """
     Shows historical versions of a page given the page id.
     """
     current_version = models.Page(page_id)
     page_list = current_version.get_revisions()
-    return render_template("homepage.html", page_list=page_list, \
+    return render_template("history.html", page_list=page_list, \
     title="Revision History: %s" % current_version.title)
 
+@APP.route("/rollback/<int:revision_id>")
+def rollback(revision_id):
+    """
+    Updates the page table with content from a given historical snapshot in the
+    revisions table. Takes the PK id in revisions table as arg
+    """
+    pull_from = models.Revision(revision_id)
+    overwrite_with = models.Page(pull_from.page_id)
+    overwrite_with.title = pull_from.title
+    overwrite_with.content = pull_from.content
+    overwrite_with.modified_by = pull_from.modified_by
+    overwrite_with.deleted = pull_from.deleted
+    overwrite_with.save()
+    flash("Page %s rolled back successfully." % overwrite_with.title)
+    return redirect("/")
+
+
 if __name__ == "__main__":
-    APP.run() 
+    APP.run()

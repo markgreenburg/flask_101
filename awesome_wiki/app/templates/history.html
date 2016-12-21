@@ -17,10 +17,7 @@
         Modified By
       </th>
       <th>
-        View Page
-      </th>
-      <th>
-        Delete Page
+        Roll Back
       </th>
     </thead>
     <tbody>
@@ -39,10 +36,7 @@
           {{entry.modified_by}}
         </td>
         <td>
-          <a href="/view/{{entry.page_id}}">View Page</a>
-        </td>
-        <td>
-          <a href="/delete/{{entry.page_id}}">Delete Page</a>
+          <a href="/rollback/{{entry.revision_id}}">Set As Current Version</a>
         </td>
       </tr>
       {% endfor %}

@@ -8,3 +8,5 @@ instance/
 awesome_wiki/config.py
 
 awesome_wiki/app/config.py
+
+awesome_wiki/.swp
