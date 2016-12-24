@@ -2,12 +2,12 @@
 
 {% block body %}
 <form action="/new_page_save" method="POST">
-  <input type="text" name="title", size="70", placeholder="Page Title" /><br />
-  <textarea name="content", rows="50", cols="72">
-  </textarea><br />
-  <input type="text" name="modified_by", size="70", placeholder="Author" />
-  <p>
-    <button type="submit">Create Page</button>
-  </p>
+  <input type="text" name="title", size="70", placeholder="Page Title"
+   required/><br />
+  <textarea name="content" rows="50" cols="72" minlength="150"
+   required></textarea><br />
+  <input type="text" name="modified_by", size="70", placeholder="Author"
+   required/>
+  <p><button type="submit">Create Page</button></p>
 </form>
 {% endblock %}
