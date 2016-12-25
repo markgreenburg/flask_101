@@ -1,27 +1,29 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1>{{title}}</h1>
-<div class="index_table">
+<div class="table table-striped">
   <table>
     <thead>
-      <th>
-        Page Name
-      </th>
-      <th>
-        Content
-      </th>
-      <th>
-        Last Modified
-      </th>
-      <th>
-        Modified By
-      </th>
-      <th>
-        View Page
-      </th>
-      <th>
-        Delete Page
-      </th>
+      <tr>
+        <th>
+          Page Name
+        </th>
+        <th>
+          Content
+        </th>
+        <th>
+          Last Modified
+        </th>
+        <th>
+          Modified By
+        </th>
+        <th>
+          View Page
+        </th>
+        <th>
+          Delete Page
+        </th>
+      </tr>
     </thead>
     <tbody>
       {% for entry in page_list: %}
