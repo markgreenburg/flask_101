@@ -21,7 +21,7 @@ def homepage():
     """
     page_list = models.Page.get_pages()
     return render_template("homepage.html", page_list=page_list, \
-    title="Mark's Wiki")
+    title="Page Index")
 
 @APP.route("/new_page")
 def new_page():

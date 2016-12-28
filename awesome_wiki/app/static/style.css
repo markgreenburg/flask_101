@@ -1,3 +1,7 @@
 ul.flashes li {
   list-style-type: none;
 }
+
+h3.page_title {
+  text-align: center;
+}

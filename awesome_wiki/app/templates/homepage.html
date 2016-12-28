@@ -1,15 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>{{title}}</h1>
-<div>
+<div class="container-fluid">
+  <h3 class = "page_title">{{title}}</h3>
+</div>
+<div class="container-fluid">
   <table class="table table-striped">
     <thead>
       <tr>
         <th>
-          Page Name
-        </th>
-        <th>
-          Content
+          Page
         </th>
         <th>
           Last Modified
@@ -18,10 +17,6 @@
           Modified By
         </th>
         <th>
-          View Page
-        </th>
-        <th>
-          Delete Page
         </th>
       </tr>
     </thead>
@@ -29,10 +24,7 @@
       {% for entry in page_list: %}
       <tr>
         <td>
-          {{entry.title}}
-        </td>
-        <td>
-          {{entry.content}}
+          <a href="/view/{{entry.page_id}}">{{entry.title}}</a>
         </td>
         <td>
           {{entry.last_modified}}
@@ -41,10 +33,7 @@
           {{entry.modified_by}}
         </td>
         <td>
-          <a href="/view/{{entry.page_id}}">View Page</a>
-        </td>
-        <td>
-          <a href="/delete/{{entry.page_id}}">Delete Page</a>
+          <a href="/delete/{{entry.page_id}}">Delete</a>
         </td>
       </tr>
       {% endfor %}
