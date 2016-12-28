@@ -123,6 +123,21 @@ class Page(object):
             pages.append(Page(page_id))
         return pages
 
+    @staticmethod
+    def find_pages(search_string):
+        """
+        Searches db with wildcard search on title and content.
+        """
+        query = ("SELECT page_id FROM page WHERE title LIKE \"%s\" OR content"
+                 " LIKE \"%s\"" % ('%' + search_string + '%', \
+                 '%' + search_string + '%'))
+        result_set = Database.get_result(query)
+        pages = []
+        for page in result_set:
+            page_id = int(page[0])
+            pages.append(Page(page_id))
+        return pages
+
 class Revision(object):
     """
     Subclass of Page. Over-rides some of the in-built functions to pull from

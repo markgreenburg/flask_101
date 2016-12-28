@@ -1,7 +1,7 @@
 {% extends "layout.html" %} {% block body %}
 <form action="/edit_page_save/{{page_id}}" method="POST">
     <input type="text" name="title" size="70" value="{{title}}" required/><br />
-    <textarea name="content" rows="50" cols="72" minlength="150"
+    <textarea name="content" rows="25" cols="72" minlength="150"
      required>{{content}}</textarea><br />
     <input type="text" name="modified_by" size="70" placeholder="Modified By"
      required /><br />
