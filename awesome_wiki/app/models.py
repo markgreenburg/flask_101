@@ -1,5 +1,5 @@
 """
-CRUD models for our wiki app
+CRUD & related models for our wiki app
 """
 from time import strftime
 import mysql.connector

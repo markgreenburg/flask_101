@@ -1,24 +1,31 @@
 {% extends "layout.html" %}
+
 {% block body %}
-<div>
-  <h3>{{title}}</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h3>{{title}}</h3>
+  </div>
 </div>
-<div>
-  {{content | safe}}
-</div>
-<div>
-  Last Modified: {{last_modified}}
-</div>
-<div>
-  Modified By: {{modified_by}}
-</div>
-<div>
-  <a href="/edit/{{page_id}}">Edit Page</a>
-</div>
-<div>
-  <a href="/history/{{page_id}}">View Revision History</a>
-</div>
-<div>
-  <a href="/delete/{{page_id}}">Delete Page</a>
+<div class="row">
+  <div class="col-md-3 col-sm-12">
+    <div>
+      Last Modified: {{last_modified}}
+    </div>
+    <div>
+      Modified By: {{modified_by}}
+    </div>
+    <div>
+      <a href="/edit/{{page_id}}">Edit Page</a>
+    </div>
+    <div>
+      <a href="/history/{{page_id}}">View Revision History</a>
+    </div>
+    <div>
+      <a href="/delete/{{page_id}}">Delete Page</a>
+    </div>
+  </div>
+  <div class="page_content col-md-6 col-sm-12">
+    {{content | safe}}
+  </div>
 </div>
 {% endblock %}
