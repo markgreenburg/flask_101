@@ -7,6 +7,9 @@
   </div>
 </div>
 <div class="row">
+  <div class="page_content col-md-9 col-sm-12">
+    {{content | safe}}
+  </div>
   <div class="col-md-3 col-sm-12 page_info">
     <div>
       Last Modified: {{last_modified}}
@@ -23,9 +26,6 @@
     <div>
       <a href="/delete/{{page_id}}">Delete Page</a>
     </div>
-  </div>
-  <div class="page_content col-md-6 col-sm-12">
-    {{content | safe}}
   </div>
 </div>
 {% endblock %}
