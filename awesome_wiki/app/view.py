@@ -28,6 +28,7 @@ def homepage():
     title="Page Index")
 
 @APP.route("/submit_search", methods=["GET"])
+@register_breadcrumb(APP, '.search', 'Search Results')
 def submit_search():
     """
     Posts search form contents and redirects to a results page.
