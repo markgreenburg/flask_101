@@ -53,8 +53,8 @@ def submit_login():
     if user.password == entered_password:
         session['username'] = user.username
         return redirect("/")
-    else:
-        return redirect("/login")
+    flash("Incorrect username or password")
+    return redirect("/login")
 
 @APP.route("/logout")
 def logout():
@@ -71,6 +71,7 @@ def new_page():
     """
     if 'username' in session:
         return render_template("new_page.html", page=models.Page())
+    flash("You must be logged in to add a page")
     return redirect("/login")
 
 @APP.route("/new_page_save", methods=["POST"])
@@ -111,6 +112,7 @@ def edit_page(page_id):
         return render_template("edit.html", page_id=page.page_id, \
                                title=page.title, content=page.content,\
                                modified_by=page.modified_by)
+    flash("You must be logged in to edit a page")
     return redirect("/login")
 
 @APP.route("/edit_page_save/<int:page_id>", methods=["POST"])
@@ -137,6 +139,7 @@ def delete_page(page_id):
         flash("Page '%s' deleted successfully. <a href='/undelete/%d'>Undo</a>"\
          % (page.title, page.page_id))
         return redirect("/")
+    flash("You must be logged in to delete a page")
     return redirect("/login")
 
 @APP.route("/undelete/<int:page_id>")
@@ -159,6 +162,7 @@ def show_history(page_id):
         page_list = current_version.get_revisions()
         return render_template("history.html", page_list=page_list, \
         title="Revision History: %s" % current_version.title)
+    flash("You must be logged in to view revision history")
     return redirect("/login")
 
 @APP.route("/rollback/<int:revision_id>")

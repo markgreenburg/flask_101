@@ -15,6 +15,11 @@ footer.navbar-fixed-bottom div {
 }
 
 div.page_content {
-  border: 1px solid;
-  border-color: rgb(231, 231, 231);
-} 
+  border: 1px solid rgb(231, 231, 231);
+  border-radius: 4px;
+}
+
+div.page_info {
+  border: 1px solid rgb(231, 231, 231);
+  border-radius: 4px;
+}
