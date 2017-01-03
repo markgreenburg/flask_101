@@ -4,6 +4,7 @@ Module consists of basic CRUD routes for the wiki APP.
 
 from flask import Flask, Markup, render_template, request, redirect, flash, \
 session
+from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 import models
 from wiki_linkify import wiki_linkify
 import markdown
@@ -14,8 +15,10 @@ APP = Flask("awesome_wiki")
 # and debug settings
 APP.config.from_object('config')
 APP.secret_key = '123456'
+Breadcrumbs(app=APP)
 
 @APP.route("/")
+@register_breadcrumb(APP, '.', 'Home')
 def homepage():
     """
     Directory of all pages in the wiki
@@ -36,6 +39,7 @@ def submit_search():
     title="Search Results")
 
 @APP.route("/login")
+@register_breadcrumb(APP, '.login', 'Log In')
 def login():
     """
     Presents login form to user.
@@ -65,6 +69,7 @@ def logout():
     return redirect("/")
 
 @APP.route("/new_page")
+@register_breadcrumb(APP, '.new_page', 'Add Page')
 def new_page():
     """
     Displays form to allow entry of data for new page creation.
@@ -88,6 +93,7 @@ def insert_page():
     return redirect("/")
 
 @APP.route("/view/<int:page_id>")
+@register_breadcrumb(APP, '.view', 'View Page')
 def show_page(page_id):
     """
     Shows the contents of a specific page
@@ -102,6 +108,7 @@ def show_page(page_id):
                            modified_by=page.modified_by)
 
 @APP.route("/edit/<int:page_id>", methods=["GET"])
+@register_breadcrumb(APP, '.view.edit', 'Edit Page')
 def edit_page(page_id):
     """
     Shows form to edit the content of the current page. Current values are
@@ -153,6 +160,7 @@ def undelete_page(page_id):
     return redirect("/")
 
 @APP.route("/history/<int:page_id>")
+@register_breadcrumb(APP, '.view.history', 'Revision History')
 def show_history(page_id):
     """
     Shows historical versions of a page given the page id.
