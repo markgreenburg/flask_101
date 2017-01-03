@@ -5,6 +5,36 @@ from time import strftime
 import mysql.connector
 import config
 
+class User(object):
+    """
+    User mapping for users in db
+    """
+    def __init__(self, user_id=0):
+        if not isinstance(user_id, int):
+            user_id = int(user_id)
+        query = ("SELECT id, username, password FROM users WHERE id = %d" % user_id)
+        result_set = Database.get_result(query, True)
+        if result_set:
+            self.user_id = user_id
+            self.username = result_set[1]
+            self.password = result_set[2]
+        else:
+            self.user_id = 0
+            self.username = "Not Set"
+            self.password = "Not Set"
+        return
+
+    @staticmethod
+    def get_user(username):
+        """
+        finds user by username and returns that user's object.
+        """
+        query = ("SELECT id FROM users WHERE username = '%s'" % username)
+        user_id_list = Database.get_result(query, True)
+        user_id = user_id_list[0]
+        user = User(user_id)
+        return user
+
 class Page(object):
     """
     Object map for pages in the database

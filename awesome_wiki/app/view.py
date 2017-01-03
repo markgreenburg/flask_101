@@ -2,7 +2,8 @@
 Module consists of basic CRUD routes for the wiki APP.
 """
 
-from flask import Flask, Markup, render_template, request, redirect, flash
+from flask import Flask, Markup, render_template, request, redirect, flash, \
+session
 import models
 from wiki_linkify import wiki_linkify
 import markdown
@@ -34,12 +35,43 @@ def submit_search():
     return render_template("homepage.html", page_list=page_list, \
     title="Search Results")
 
+@APP.route("/login")
+def login():
+    """
+    Presents login form to user.
+    """
+    return render_template("login.html")
+
+@APP.route("/submit_login", methods=["POST"])
+def submit_login():
+    """
+    submits login credentials to authenticate user, or redirects to login page.
+    """
+    entered_username = request.form.get('username')
+    entered_password = request.form.get('password')
+    user = models.User.get_user(entered_username)
+    if user.password == entered_password:
+        session['username'] = user.username
+        return redirect("/")
+    else:
+        return redirect("/login")
+
+@APP.route("/logout")
+def logout():
+    """
+    Logs out current user by deleting their username from the session
+    """
+    del session['username']
+    return redirect("/")
+
 @APP.route("/new_page")
 def new_page():
     """
     Displays form to allow entry of data for new page creation.
     """
-    return render_template("new_page.html", page=models.Page())
+    if 'username' in session:
+        return render_template("new_page.html", page=models.Page())
+    return redirect("/login")
 
 @APP.route("/new_page_save", methods=["POST"])
 def insert_page():
@@ -49,7 +81,7 @@ def insert_page():
     page = models.Page()
     page.title = request.form.get("title")
     page.content = request.form.get("content")
-    page.modified_by = request.form.get("modified_by")
+    page.modified_by = session['username']
     page.save()
     flash("Page '%s' created successfully" % page.title)
     return redirect("/")
@@ -74,10 +106,12 @@ def edit_page(page_id):
     Shows form to edit the content of the current page. Current values are
     displayed in the form by default.
     """
-    page = models.Page(page_id)
-    return render_template("edit.html", page_id=page.page_id, \
-                           title=page.title, content=page.content,\
-                           modified_by=page.modified_by)
+    if 'username' in session:
+        page = models.Page(page_id)
+        return render_template("edit.html", page_id=page.page_id, \
+                               title=page.title, content=page.content,\
+                               modified_by=page.modified_by)
+    return redirect("/login")
 
 @APP.route("/edit_page_save/<int:page_id>", methods=["POST"])
 def update_page(page_id):
@@ -87,7 +121,7 @@ def update_page(page_id):
     page = models.Page(page_id)
     page.title = request.form.get("title")
     page.content = request.form.get("content")
-    page.modified_by = request.form.get("modified_by")
+    page.modified_by = session['username']
     page.save()
     flash("Page '%s' updated successfully" % page.title)
     return redirect("/")
@@ -97,11 +131,13 @@ def delete_page(page_id):
     """
     Soft deletes a specific page. Flashes link to user to undo action
     """
-    page = models.Page(page_id)
-    page.set_delete()
-    flash("Page '%s' deleted successfully. <a href='/undelete/%d'>Undo</a>" \
-          % (page.title, page.page_id))
-    return redirect("/")
+    if 'username' in session:
+        page = models.Page(page_id)
+        page.set_delete()
+        flash("Page '%s' deleted successfully. <a href='/undelete/%d'>Undo</a>"\
+         % (page.title, page.page_id))
+        return redirect("/")
+    return redirect("/login")
 
 @APP.route("/undelete/<int:page_id>")
 def undelete_page(page_id):
@@ -118,10 +154,12 @@ def show_history(page_id):
     """
     Shows historical versions of a page given the page id.
     """
-    current_version = models.Page(page_id)
-    page_list = current_version.get_revisions()
-    return render_template("history.html", page_list=page_list, \
-    title="Revision History: %s" % current_version.title)
+    if 'username' in session:
+        current_version = models.Page(page_id)
+        page_list = current_version.get_revisions()
+        return render_template("history.html", page_list=page_list, \
+        title="Revision History: %s" % current_version.title)
+    return redirect("/login")
 
 @APP.route("/rollback/<int:revision_id>")
 def rollback(revision_id):
