@@ -87,11 +87,12 @@ class Page(object):
         Updates page in wiki. Should not be called directly - instead, use the
         Page.save() method.
         """
+        self.last_modified = strftime("%Y-%m-%d %H:%M:%S")
         query = ("UPDATE page SET title = '%s', content = '%s', last_modified"
                  " = '%s', modified_by = '%s' WHERE id = %d RETURNING id" % \
                 (Database.escape(self.title),\
                  Database.escape(self.content),\
-                 strftime("%Y-%m-%d %H:%M:%S"),\
+                 self.last_modified,\
                  Database.escape(self.modified_by),\
                  self.page_id))
         result_list = Database.get_result(query)
