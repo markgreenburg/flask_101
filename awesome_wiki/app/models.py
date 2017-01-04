@@ -68,12 +68,13 @@ class Page(object):
         Inserts new page into wiki. Should not be called directly - instead,
         use the Page.save() method.
         """
+        self.last_modified = strftime("%Y-%m-%d %H:%M:%S")
         query = ("INSERT INTO page (title, content, last_modified, deleted,"
                  " modified_by) VALUES ('%s', '%s', '%s', %s, '%s')"
                  " RETURNING id" % \
                  (Database.escape(self.title), \
                   Database.escape(self.content), \
-                  strftime("%Y-%m-%d %H:%M:%S"), \
+                  self.last_modified, \
                   self.deleted, \
                   Database.escape(self.modified_by)))
         result_list = Database.get_result(query)
