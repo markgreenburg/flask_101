@@ -156,7 +156,7 @@ def undelete_page(page_id):
     Sets 'deleted' attribute back to 0, effectively restoring the page.
     """
     page = models.Page(page_id)
-    page.set_delete(0)
+    page.set_delete(False)
     flash("Page '%s' restored successfully." % page.title)
     return redirect("/")
 

@@ -2,7 +2,7 @@
 CRUD & related models for our wiki app
 """
 from time import strftime
-import mysql.connector
+import pg
 import config
 
 class User(object):
@@ -13,11 +13,11 @@ class User(object):
         if not isinstance(user_id, int):
             user_id = int(user_id)
         query = ("SELECT id, username, password FROM users WHERE id = %d" % user_id)
-        result_set = Database.get_result(query, True)
+        result_set = Database.get_result(query)
         if result_set:
             self.user_id = user_id
-            self.username = result_set[1]
-            self.password = result_set[2]
+            self.username = result_set[0].username
+            self.password = result_set[0].password
         else:
             self.user_id = 0
             self.username = "Not Set"
@@ -30,8 +30,8 @@ class User(object):
         finds user by username and returns that user's object.
         """
         query = ("SELECT id FROM users WHERE username = '%s'" % username)
-        user_id_list = Database.get_result(query, True)
-        user_id = user_id_list[0]
+        user_id_list = Database.get_result(query)
+        user_id = user_id_list[0].id
         user = User(user_id)
         return user
 
@@ -42,25 +42,25 @@ class Page(object):
     def __init__(self, page_id=0):
         if not isinstance(page_id, int):
             page_id = int(page_id)
-        query = ("SELECT page_id, title, content, last_modified, modified_by,"
-                 " deleted FROM page WHERE page_id = %d" % page_id)
+        query = ("SELECT id, title, content, last_modified, modified_by,"
+                 " deleted FROM page WHERE id = %d" % page_id)
         # Query our db to see if this page ID exists
-        result_set = Database.get_result(query, True)
+        result_set = Database.get_result(query)
         # If page exists, set Page attributes to what's in the db
         if result_set:
             self.page_id = page_id
-            self.title = result_set[1]
-            self.content = result_set[2]
-            self.last_modified = result_set[3]
-            self.modified_by = result_set[4]
-            self.deleted = result_set[5]
+            self.title = result_set[0].title
+            self.content = result_set[0].content
+            self.last_modified = result_set[0].last_modified
+            self.modified_by = result_set[0].modified_by
+            self.deleted = result_set[0].deleted
         else:
             self.page_id = 0
             self.title = "Not Set"
             self.content = "Not Set"
             self.last_modified = "Not Set"
             self.modified_by = "Not Set"
-            self.deleted = 0
+            self.deleted = False
         return
 
     def insert(self):
@@ -68,13 +68,17 @@ class Page(object):
         Inserts new page into wiki. Should not be called directly - instead,
         use the Page.save() method.
         """
-        query = ("INSERT INTO page (title, content, last_modified,"
-                 " modified_by) VALUES (\"%s\", \"%s\", \"%s\", \"%s\")" % \
+        query = ("INSERT INTO page (title, content, last_modified, deleted,"
+                 " modified_by) VALUES ('%s', '%s', '%s', %s, '%s')"
+                 " RETURNING id" % \
                  (Database.escape(self.title), \
-                  Database.escape(self.content),\
+                  Database.escape(self.content), \
                   strftime("%Y-%m-%d %H:%M:%S"), \
+                  self.deleted, \
                   Database.escape(self.modified_by)))
-        self.page_id = Database.do_query(query)
+        result_list = Database.get_result(query)
+        self.page_id = result_list[0].id
+        print "PAGE ID IS: %s" % self.page_id
         return self.page_id
 
     def update(self):
@@ -82,14 +86,15 @@ class Page(object):
         Updates page in wiki. Should not be called directly - instead, use the
         Page.save() method.
         """
-        query = ("UPDATE page set title = '%s', content = '%s', last_modified"
-                 " = '%s', modified_by = '%s' WHERE page_id = %d" % \
+        query = ("UPDATE page SET title = '%s', content = '%s', last_modified"
+                 " = '%s', modified_by = '%s' WHERE id = %d RETURNING id" % \
                 (Database.escape(self.title),\
                  Database.escape(self.content),\
                  strftime("%Y-%m-%d %H:%M:%S"),\
                  Database.escape(self.modified_by),\
                  self.page_id))
-        return Database.do_query(query)
+        result_list = Database.get_result(query)
+        return result_list[0].id
 
     def save(self):
         """
@@ -111,15 +116,15 @@ class Page(object):
         revision.save()
         return self.page_id
 
-    def set_delete(self, deleted=1):
+    def set_delete(self, deleted=True):
         """
         Sets a page's 'deleted' attribute to 1 by default (so it won't show in
         index) or 0 if passed in as an arg. Setting to 0 restores the page in
         the index.
         """
-        query = "UPDATE page SET deleted = %d WHERE page_id = %d" \
+        query = "UPDATE page SET deleted = %s WHERE id = %d RETURNING id" \
                 % (deleted, self.page_id)
-        return Database.do_query(query)
+        return Database.get_result(query)
 
     def get_revisions(self):
         """
@@ -144,8 +149,8 @@ class Page(object):
         page_id arg given, returns all historical revisions of that page_id
         from the revisions table. Returns all rows.
         """
-        query = ("SELECT page_id, title, content, last_modified, modified_by"
-                 " FROM page WHERE deleted = 0 ORDER BY title ASC")
+        query = ("SELECT id, title, content, last_modified, modified_by"
+                 " FROM page WHERE deleted = FALSE ORDER BY title ASC")
         result_set = Database.get_result(query)
         pages = []
         for page in result_set:
@@ -158,8 +163,9 @@ class Page(object):
         """
         Searches db with wildcard search on title and content.
         """
-        query = ("SELECT page_id FROM page WHERE title LIKE \"%s\" OR content"
-                 " LIKE \"%s\"" % ('%' + search_string + '%', \
+        search_string = Database.escape(search_string)
+        query = ("SELECT id FROM page WHERE title LIKE '%s' OR content"
+                 " LIKE '%s'" % ('%' + search_string + '%', \
                  '%' + search_string + '%'))
         result_set = Database.get_result(query)
         pages = []
@@ -179,15 +185,15 @@ class Revision(object):
         query = ("SELECT id, page_id, title, content, last_modified,"
                  " modified_by, deleted FROM revisions WHERE id = %d" \
                  % revision_id)
-        result_set = Database.get_result(query, True)
+        result_set = Database.get_result(query)
         if result_set:
             self.revision_id = revision_id
-            self.page_id = result_set[1]
-            self.title = result_set[2]
-            self.content = result_set[3]
-            self.last_modified = result_set[4]
-            self.modified_by = result_set[5]
-            self.deleted = result_set[6]
+            self.page_id = result_set[0].page_id
+            self.title = result_set[0].title
+            self.content = result_set[0].content
+            self.last_modified = result_set[0].last_modified
+            self.modified_by = result_set[0].modified_by
+            self.deleted = result_set[0].deleted
         else:
             self.revision_id = 0
             self.page_id = 0
@@ -195,7 +201,7 @@ class Revision(object):
             self.content = "not set"
             self.last_modified = "not set"
             self.modified_by = "not set"
-            self.deleted = 0
+            self.deleted = False
 
     def insert(self):
         """
@@ -204,11 +210,12 @@ class Revision(object):
         """
         query = ("INSERT INTO revisions (page_id, title, content,"
                  " last_modified, modified_by, deleted) VALUES ("
-                 "\"%d\", \"%s\", \"%s\", \"%s\", \"%s\", \"%d\")" % \
+                 " %d, '%s', '%s', '%s', '%s', %s) RETURNING id" % \
                  (self.page_id, self.title, self.content, \
                   self.last_modified, self.modified_by, \
                   self.deleted))
-        self.revision_id = Database.do_query(query)
+        result_list = Database.get_result(query)
+        self.revision_id = result_list[0].id
         return self.revision_id
 
     def save(self):
@@ -228,14 +235,14 @@ class Database(object):
     @staticmethod
     def get_connection():
         """
-        Sets up the mysql connection. Uses settings from the config file.
+        Sets up the postgreSQL connection. Uses settings from the config file.
         """
-        return mysql.connector.connect(
-            user=config.user_name,
-            password=config.password,
+        return pg.DB(
             host=config.host,
-            database=config.database
-        )
+            user=config.user_name,
+            passwd=config.password,
+            dbname=config.database
+            )
 
     @staticmethod
     def escape(value):
@@ -245,7 +252,7 @@ class Database(object):
         return value.replace("'", "''")
 
     @staticmethod
-    def get_result(query, get_one=False):
+    def get_result(query):
         """
         Opens a connection to the db, executes a query, fetches results, and
         then closes the connection.
@@ -253,29 +260,23 @@ class Database(object):
         Returns: the fetchOne or fetchAll of the query
         """
         conx = Database.get_connection()
-        cur = conx.cursor()
-        cur.execute(query)
-        if get_one:
-            result_set = cur.fetchone()
-        else:
-            result_set = cur.fetchall()
-        cur.close()
-        conx.close()
-        return result_set
+        query = conx.query(query)
+        result_list = query.namedresult()
+        return result_list
 
-    @staticmethod
-    def do_query(query):
-        """
-        Takes care of opening and then closing our database connections. Also
-        executes our SQL and auto-commits queries. Takes SQL query as arg and
-        returns the lastrowid in case we need to insert it as foreign key
-        elsewhere.
-        """
-        conx = Database.get_connection()
-        cur = conx.cursor()
-        cur.execute(query)
-        conx.commit()
-        last_id = cur.lastrowid
-        cur.close()
-        conx.close()
-        return last_id
+    # @staticmethod
+    # def do_query(query):
+    #     """
+    #     Takes care of opening and then closing our database connections. Also
+    #     executes our SQL and auto-commits queries. Takes SQL query as arg and
+    #     returns the lastrowid in case we need to insert it as foreign key
+    #     elsewhere.
+    #     """
+    #     conx = Database.get_connection()
+    #     cur = conx.cursor()
+    #     cur.execute(query)
+    #     conx.commit()
+    #     last_id = cur.lastrowid
+    #     cur.close()
+    #     conx.close()
+    #     return last_id
